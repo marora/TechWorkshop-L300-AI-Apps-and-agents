@@ -17,8 +17,16 @@ from agent.a2a_server import A2AServer
 load_dotenv()
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s:%(name)s:%(message)s'
+)
 logger = logging.getLogger(__name__)
+
+# Enable verbose logging for agent_framework and related components
+logging.getLogger("agent_framework").setLevel(logging.DEBUG)
+logging.getLogger("agent_framework.functions").setLevel(logging.DEBUG)
+logging.getLogger("agent_framework.kernel").setLevel(logging.DEBUG)
 
 # Global variables for cleanup
 httpx_client: httpx.AsyncClient = None
