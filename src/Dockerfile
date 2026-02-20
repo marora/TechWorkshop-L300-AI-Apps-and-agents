@@ -21,8 +21,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the code
 COPY . .
 
-# Copy .env file into the image (for python-dotenv)
-COPY .env .env
+# Copy .env file if it exists (for python-dotenv)
+# Note: .env is created from GitHub secrets in CI/CD or manually for local dev
+# This uses a shell script to avoid build failure if .env doesn't exist
+RUN if [ -f .env ]; then echo "✅ .env file found"; else echo "⚠️  No .env file (using environment variables)"; fi
 
 # Expose the port (default FastAPI/uvicorn port)
 EXPOSE 8000
