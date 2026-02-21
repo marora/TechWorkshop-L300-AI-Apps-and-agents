@@ -27,9 +27,10 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Create .env file from secret
+        working-directory: ./src
         run: |
           echo "${{ secrets.ENV }}" > .env
-          echo "✅ .env file created from GitHub secret"
+          echo "✅ .env file created in src/ directory"
 
       - name: Install dependencies
         working-directory: ./src
@@ -39,51 +40,51 @@ jobs:
           echo "✅ Dependencies installed"
 
       - name: Run Cart Manager Agent Initializer
-        working-directory: ./src/app/agents
+        working-directory: ./src
         continue-on-error: true
         run: |
           echo "🚀 Running Cart Manager Agent Initializer..."
-          python cartManagerAgent_initializer.py
+          python app/agents/cartManagerAgent_initializer.py
           echo "✅ Cart Manager Agent completed"
 
       - name: Run Customer Loyalty Agent Initializer
-        working-directory: ./src/app/agents
+        working-directory: ./src
         continue-on-error: true
         run: |
           echo "🚀 Running Customer Loyalty Agent Initializer..."
-          python customerLoyaltyAgent_initializer.py
+          python app/agents/customerLoyaltyAgent_initializer.py
           echo "✅ Customer Loyalty Agent completed"
 
       - name: Run Handoff Agent Initializer
-        working-directory: ./src/app/agents
+        working-directory: ./src
         continue-on-error: true
         run: |
           echo "🚀 Running Handoff Agent Initializer..."
-          python handoffAgent_initializer.py
+          python app/agents/handoffAgent_initializer.py
           echo "✅ Handoff Agent completed"
 
       - name: Run Interior Design Agent Initializer
-        working-directory: ./src/app/agents
+        working-directory: ./src
         continue-on-error: true
         run: |
           echo "🚀 Running Interior Design Agent Initializer..."
-          python interiorDesignAgent_initializer.py
+          python app/agents/interiorDesignAgent_initializer.py
           echo "✅ Interior Design Agent completed"
 
       - name: Run Inventory Agent Initializer
-        working-directory: ./src/app/agents
+        working-directory: ./src
         continue-on-error: true
         run: |
           echo "🚀 Running Inventory Agent Initializer..."
-          python inventoryAgent_initializer.py
+          python app/agents/inventoryAgent_initializer.py
           echo "✅ Inventory Agent completed"
 
       - name: Run Shopper Agent Initializer
-        working-directory: ./src/app/agents
+        working-directory: ./src
         continue-on-error: true
         run: |
           echo "🚀 Running Shopper Agent Initializer..."
-          python shopperAgent_initializer.py
+          python app/agents/shopperAgent_initializer.py
           echo "✅ Shopper Agent completed"
 
       - name: Clean up .env file
