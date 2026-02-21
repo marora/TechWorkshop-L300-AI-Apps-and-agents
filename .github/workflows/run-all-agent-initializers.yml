@@ -30,7 +30,14 @@ jobs:
         working-directory: ./src
         run: |
           echo "${{ secrets.ENV }}" > .env
-          echo "✅ .env file created in src/ directory"
+          echo "✅ .env file created"
+          # Export all variables from .env to GitHub Actions environment
+          while IFS='=' read -r key value; do
+            if [[ ! -z "$key" && ! "$key" =~ ^# ]]; then
+              echo "${key}=${value}" >> $GITHUB_ENV
+            fi
+          done < .env
+          echo "✅ Environment variables exported"
 
       - name: Install dependencies
         working-directory: ./src
@@ -43,9 +50,6 @@ jobs:
         working-directory: ./src
         continue-on-error: true
         run: |
-          set -a
-          source .env
-          set +a
           echo "🚀 Running Cart Manager Agent Initializer..."
           python app/agents/cartManagerAgent_initializer.py
           echo "✅ Cart Manager Agent completed"
@@ -54,9 +58,6 @@ jobs:
         working-directory: ./src
         continue-on-error: true
         run: |
-          set -a
-          source .env
-          set +a
           echo "🚀 Running Customer Loyalty Agent Initializer..."
           python app/agents/customerLoyaltyAgent_initializer.py
           echo "✅ Customer Loyalty Agent completed"
@@ -65,9 +66,6 @@ jobs:
         working-directory: ./src
         continue-on-error: true
         run: |
-          set -a
-          source .env
-          set +a
           echo "🚀 Running Handoff Agent Initializer..."
           python app/agents/handoffAgent_initializer.py
           echo "✅ Handoff Agent completed"
@@ -76,9 +74,6 @@ jobs:
         working-directory: ./src
         continue-on-error: true
         run: |
-          set -a
-          source .env
-          set +a
           echo "🚀 Running Interior Design Agent Initializer..."
           python app/agents/interiorDesignAgent_initializer.py
           echo "✅ Interior Design Agent completed"
@@ -87,9 +82,6 @@ jobs:
         working-directory: ./src
         continue-on-error: true
         run: |
-          set -a
-          source .env
-          set +a
           echo "🚀 Running Inventory Agent Initializer..."
           python app/agents/inventoryAgent_initializer.py
           echo "✅ Inventory Agent completed"
@@ -98,9 +90,6 @@ jobs:
         working-directory: ./src
         continue-on-error: true
         run: |
-          set -a
-          source .env
-          set +a
           echo "🚀 Running Shopper Agent Initializer..."
           python app/agents/shopperAgent_initializer.py
           echo "✅ Shopper Agent completed"
