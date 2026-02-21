@@ -1,0 +1,121 @@
+name: Run All Agent Initializers
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/app/agents/**'
+      - 'src/prompts/**'
+      - 'src/app/tools/**'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.10'
+
+jobs:
+  run-all-agents:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Create .env file from secret
+        run: |
+          echo "${{ secrets.ENV }}" > .env
+          echo "✅ .env file created from GitHub secret"
+
+      - name: Install dependencies
+        working-directory: ./src
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          echo "✅ Dependencies installed"
+
+      - name: Run Cart Manager Agent Initializer
+        working-directory: ./src/app/agents
+        continue-on-error: true
+        run: |
+          echo "🚀 Running Cart Manager Agent Initializer..."
+          python cartManagerAgent_initializer.py
+          echo "✅ Cart Manager Agent completed"
+
+      - name: Run Customer Loyalty Agent Initializer
+        working-directory: ./src/app/agents
+        continue-on-error: true
+        run: |
+          echo "🚀 Running Customer Loyalty Agent Initializer..."
+          python customerLoyaltyAgent_initializer.py
+          echo "✅ Customer Loyalty Agent completed"
+
+      - name: Run Handoff Agent Initializer
+        working-directory: ./src/app/agents
+        continue-on-error: true
+        run: |
+          echo "🚀 Running Handoff Agent Initializer..."
+          python handoffAgent_initializer.py
+          echo "✅ Handoff Agent completed"
+
+      - name: Run Interior Design Agent Initializer
+        working-directory: ./src/app/agents
+        continue-on-error: true
+        run: |
+          echo "🚀 Running Interior Design Agent Initializer..."
+          python interiorDesignAgent_initializer.py
+          echo "✅ Interior Design Agent completed"
+
+      - name: Run Inventory Agent Initializer
+        working-directory: ./src/app/agents
+        continue-on-error: true
+        run: |
+          echo "🚀 Running Inventory Agent Initializer..."
+          python inventoryAgent_initializer.py
+          echo "✅ Inventory Agent completed"
+
+      - name: Run Shopper Agent Initializer
+        working-directory: ./src/app/agents
+        continue-on-error: true
+        run: |
+          echo "🚀 Running Shopper Agent Initializer..."
+          python shopperAgent_initializer.py
+          echo "✅ Shopper Agent completed"
+
+      - name: Clean up .env file
+        if: always()
+        run: |
+          rm -f .env
+          echo "🧹 .env file removed"
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-logs
+          path: ./src/app/agents/
+          retention-days: 7
+
+      - name: Workflow completed
+        if: always()
+        run: |
+          echo "✅ Workflow completed"
+          echo ""
+          echo "Agents executed:"
+          echo "  • Cart Manager Agent"
+          echo "  • Customer Loyalty Agent"
+          echo "  • Handoff Agent"
+          echo "  • Interior Design Agent"
+          echo "  • Inventory Agent"
+          echo "  • Shopper Agent"
+          echo ""
+          echo "Triggered by changes in:"
+          echo "  📁 src/app/agents/"
+          echo "  📄 src/prompts/"
+          echo "  🛠️  src/app/tools/"
+          echo ""
+          echo "Environment: Loaded from ENV secret"

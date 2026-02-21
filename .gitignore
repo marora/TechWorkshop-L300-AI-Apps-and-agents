@@ -55,5 +55,6 @@ out/
 
 # Github
 .github/
+!.github/workflows/
 parameters.json
 .azure
