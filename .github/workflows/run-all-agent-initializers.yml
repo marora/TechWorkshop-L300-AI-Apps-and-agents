@@ -33,6 +33,12 @@ jobs:
           echo "${{ secrets.ENV }}" > .env
           echo "✅ .env file created"
           
+          # Verify .env file exists and show its size
+          ls -lah .env
+          echo "--- First 5 lines of .env ---"
+          head -5 .env
+          echo "--- END ---"
+          
           # Parse .env and export to GITHUB_ENV
           python3 << 'EOF'
           import os
@@ -46,6 +52,8 @@ jobs:
                           env_file.write(f"{key}={value}\n")
                       print(f"✅ Exported: {key}")
           EOF
+          
+          echo "✅ All environment variables exported"
 
       - name: Install dependencies
         working-directory: ./src
@@ -53,6 +61,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           echo "✅ Dependencies installed"
+
+      - name: Verify environment variables are available
+        working-directory: ./src
+        run: |
+          python3 << 'EOF'
+          import os
+          required_vars = ['COSMOS_ENDPOINT', 'COSMOS_KEY', 'DATABASE_NAME', 'CONTAINER_NAME', 'FOUNDRY_ENDPOINT', 'gpt_deployment']
+          print("=== Checking Required Environment Variables ===")
+          for var in required_vars:
+              if var in os.environ:
+                  print(f"✅ {var}: {os.environ[var][:50]}..." if len(os.environ[var]) > 50 else f"✅ {var}: {os.environ[var]}")
+              else:
+                  print(f"❌ {var}: NOT FOUND")
+          EOF
 
       - name: Run Cart Manager Agent Initializer
         working-directory: ./src
