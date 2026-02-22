@@ -26,18 +26,26 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Create .env file from secret
+      - name: Create .env file and export variables
         working-directory: ./src
         run: |
+          # Create .env file
           echo "${{ secrets.ENV }}" > .env
           echo "✅ .env file created"
-          # Export all variables from .env to GitHub Actions environment
-          while IFS='=' read -r key value; do
-            if [[ ! -z "$key" && ! "$key" =~ ^# ]]; then
-              echo "${key}=${value}" >> $GITHUB_ENV
-            fi
-          done < .env
-          echo "✅ Environment variables exported"
+          
+          # Parse .env and export to GITHUB_ENV
+          python3 << 'EOF'
+          import os
+          with open('.env', 'r') as f:
+              for line in f:
+                  line = line.strip()
+                  if line and not line.startswith('#') and '=' in line:
+                      key, value = line.split('=', 1)
+                      # Write to GITHUB_ENV for all subsequent steps
+                      with open(os.environ['GITHUB_ENV'], 'a') as env_file:
+                          env_file.write(f"{key}={value}\n")
+                      print(f"✅ Exported: {key}")
+          EOF
 
       - name: Install dependencies
         working-directory: ./src
