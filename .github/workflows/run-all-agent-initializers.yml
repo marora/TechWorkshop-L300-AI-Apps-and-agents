@@ -29,31 +29,37 @@ jobs:
       - name: Create .env file and export variables
         working-directory: ./src
         run: |
-          # Create .env file
-          echo "${{ secrets.ENV }}" > .env
+          # Create .env file using cat with heredoc to preserve multilines
+          cat > .env << 'ENVEOF'
+          ${{ secrets.ENV }}
+          ENVEOF
+          
           echo "✅ .env file created"
           
           # Verify .env file exists and show its size
           ls -lah .env
-          echo "--- First 5 lines of .env ---"
-          head -5 .env
+          echo "--- First 10 lines of .env ---"
+          head -10 .env
           echo "--- END ---"
           
           # Parse .env and export to GITHUB_ENV
           python3 << 'EOF'
           import os
+          env_count = 0
           with open('.env', 'r') as f:
               for line in f:
                   line = line.strip()
                   if line and not line.startswith('#') and '=' in line:
                       key, value = line.split('=', 1)
+                      # Remove quotes if present
+                      value = value.strip('"').strip("'")
                       # Write to GITHUB_ENV for all subsequent steps
                       with open(os.environ['GITHUB_ENV'], 'a') as env_file:
                           env_file.write(f"{key}={value}\n")
                       print(f"✅ Exported: {key}")
+                      env_count += 1
+          print(f"\n✅ Total variables exported: {env_count}")
           EOF
-          
-          echo "✅ All environment variables exported"
 
       - name: Install dependencies
         working-directory: ./src
